@@ -17,6 +17,7 @@ use SergiX44\Nutgram\Telegram\Attributes\MessageTypes;
 use SergiX44\Nutgram\Conversations\Conversation;
 
 $fileid = "";
+$temporary = [];
 
 $bot->onCommand('start', function (Nutgram $bot) {
     $kb = ['reply_markup' =>
@@ -96,6 +97,9 @@ function askPhoto(Nutgram $bot){
 //    $bot->sendMessage("chatid OK $chat_id");
 //    $mId = $bot->messageId();
 //    $bot->sendMessage("message OK $mId");
+
+
+
     if ($fileid == null){
         $fileid .= $bot->update()->message->photo[0]->file_id;
     }else{
@@ -108,7 +112,8 @@ function askPhoto(Nutgram $bot){
             ['callback_data' => 'askMark', 'text' => 'Keyingi bosqich']
         ]], 'resize_keyboard' => true]
     ];
-    file_put_contents('D:\Develop\Projects\panels\5_42\domains\nutgram-tg-bot\app\telenutgram' . $bot->update()->message->photo[0]->file_id  . '.json', json_encode($bot->update()));
+    file_put_contents('D:\JSONs\\' . $bot->update()->message->photo[0]->file_id  . '.json', json_encode($bot->update()));
+
     $bot->sendMessage("Rahmat rasmingizni qabul qildik. ", $kb);
 //    $bot->sendMessage("chatid - $photo");
 //    $bot->sendMessage("Message_Id - $mId");
@@ -131,12 +136,41 @@ $bot->onCallbackQueryData('askMark', function (Nutgram $bot) {
         ]
     ];
 
+    $group = [
+        [
+            "type"=> 'photo',
+            "media"=>"AgACAgQAAxkBAAIGM2NqHB4q1WSGczf89hlQ72tes60lAAKDuTEbXZ5QU4y_wdDuv2SqAQADAgADcwADKwQ"
+        ],
+        [
+            "type"=> 'photo',
+            "media"=>"AgACAgQAAxkBAAIGNGNqHB5YEd2cOmI0izZ9nK40HrJnAAJ7uTEbXZ5QU6QQBsPxzoUMAQADAgADcwADKwQ"
+        ],
+        [
+            "type"=> 'photo',
+            "media"=>"AgACAgQAAxkBAAIGNWNqHB5HoI3T2Hlq5At2_TudMR1xAAJ8uTEbXZ5QU8zUVb4s6POdAQADAgADcwADKwQ"
+        ]
+    ];
+
     $photos = $bot->message()->photo;
     $filearr = explode (",", $fileid);
+    $photos = [];
+    try{
+    for($i=0; $i< count($filearr); $i++) {
+        var_dump($filearr[$i]);
+        $photos[$i] = [
+            "type" => 'photo',
+            "media" => (string)$filearr[$i]
+        ];
+    }
+            $bot->sendMediaGroup($photos);
+        }catch (Exception $e){
+            $bot->sendMessage($e->getMessage());
+        }
+
+    print_r($photos);
+
     $bot->sendMessage("Nice! ".json_encode($filearr));
-    $bot->sendMediaGroup($media, ['chat_id' => '@moshinabozorpll']);
-    $bot->sendPhoto($fileid, ['chat_id' => '@moshinabozorpll']);
-
-
+    //$bot->sendMediaGroup($media, ['chat_id' => '@moshinabozorpll']);
+    //$bot->sendPhoto($fileid, ['chat_id' => '@moshinabozorpll']);
 
 });
